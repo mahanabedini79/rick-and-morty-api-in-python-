@@ -1,0 +1,52 @@
+import requests
+import tkinter as tk
+from PIL import Image, ImageTk
+import io
+
+def get_character_info(name):
+    response = requests.get(f"https://rickandmortyapi.com/api/character/?name={name}")
+    data = response.json()
+    if data["info"]["count"] == 0:
+        return "No character found with that name."
+    else:
+        character = data["results"][0]
+        info = f"Name: {character['name']}\n"\
+               f"Status: {character['status']}\n"\
+               f"Species: {character['species']}\n"\
+               f"Type: {character['type']}\n"\
+               f"Gender: {character['gender']}\n"\
+               f"Origin: {character['origin']['name']}\n"\
+               f"Location: {character['location']['name']}\n"
+               
+     
+
+        # Download the character's image and display it in the UI
+        image_url = character['image']
+        response = requests.get(image_url)
+        img_data = response.content
+        img = Image.open(io.BytesIO(img_data))
+        img = img.resize((200, 200))
+        photo = ImageTk.PhotoImage(img)
+        label_image.config(image=photo)
+        label_image.image = photo
+
+        return info
+
+def get_character():
+    name = entry.get()
+    info = get_character_info(name)
+    label_info.config(text=info)
+
+window = tk.Tk()
+window.title("Rick and Morty Character Info created by mahan abedini ")
+label_info = tk.Label(window, text="")
+label_info.pack()
+entry = tk.Entry(window)
+entry.pack()
+button = tk.Button(window, text="Get Character Info", command=get_character)
+button.pack()
+label_image = tk.Label(window)
+label_image.pack()
+window.mainloop()
+
+
